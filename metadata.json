@@ -1,0 +1,5 @@
+{
+  "name": "Meeting Transcript Analyzer",
+  "description": "Upload a VTT or plain text meeting transcript to analyze and filter by speaker, questions, and topics using AI.",
+  "requestFramePermissions": []
+}
