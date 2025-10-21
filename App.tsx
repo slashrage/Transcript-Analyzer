@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { parseTranscript } from './services/parser';
-import { analyzeTranscript } from './services/geminiService';
+import { analyzeTranscript } from './services/claudeService';
 import type { TranscriptEntry, GeminiAnalysisResult, AnalyzedTranscriptEntry } from './types';
 import FileUpload from './components/FileUpload';
 import FilterControls from './components/FilterControls';
@@ -48,7 +48,7 @@ const App: React.FC = () => {
       } catch (analysisError) {
         const message = analysisError instanceof Error ? analysisError.message : 'An unknown error occurred';
         setError(`AI analysis failed: ${message}. You can still view the transcript.`);
-        console.error('Gemini analysis failed:', analysisError);
+        console.error('Claude analysis failed:', analysisError);
       }
 
     } catch (err) {
@@ -95,7 +95,7 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-gray-900 text-gray-100 font-sans">
       <header className="bg-gray-800/50 backdrop-blur-sm shadow-lg sticky top-0 z-10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-teal-400">Transcript Analyzer</h1>
+          <h1 className="text-2xl font-bold text-teal-400">Transcript Analyzer (Claude)</h1>
           {transcript && <button onClick={resetState} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300">New Transcript</button>}
         </div>
       </header>
@@ -104,7 +104,7 @@ const App: React.FC = () => {
         {!transcript && !isLoading && (
           <div className="max-w-2xl mx-auto">
             <h2 className="text-3xl font-extrabold text-center mb-4 text-white">Upload and Analyze Your Meeting Transcript</h2>
-            <p className="text-center text-gray-400 mb-8">Supports .vtt and .txt files. Your transcript will be parsed and analyzed for key insights like questions and action items.</p>
+            <p className="text-center text-gray-400 mb-8">Supports .vtt and .txt files. Your transcript will be parsed and analyzed for key insights like questions and action items using Claude AI.</p>
             <FileUpload onFileUpload={handleFileUpload} />
           </div>
         )}
