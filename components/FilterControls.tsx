@@ -3,6 +3,7 @@ import type { ChangeEvent } from 'react';
 import SpeakerIcon from './icons/SpeakerIcon';
 import QuestionIcon from './icons/QuestionIcon';
 import ActionItemIcon from './icons/ActionItemIcon';
+import SearchIcon from './icons/SearchIcon';
 
 interface FilterControlsProps {
   speakers: string[];
@@ -14,6 +15,8 @@ interface FilterControlsProps {
     isActionItem: boolean;
   }) => void;
   hasAnalysisResults: boolean;
+  searchTerm: string;
+  onSearchChange: (term: string) => void;
 }
 
 const FilterControls: React.FC<FilterControlsProps> = ({
@@ -23,6 +26,8 @@ const FilterControls: React.FC<FilterControlsProps> = ({
   analysisFilter,
   onAnalysisFilterChange,
   hasAnalysisResults,
+  searchTerm,
+  onSearchChange,
 }) => {
   const [isSpeakersExpanded, setIsSpeakersExpanded] = useState(true);
 
@@ -58,6 +63,20 @@ const FilterControls: React.FC<FilterControlsProps> = ({
     <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl shadow-lg sticky top-24">
       <h3 className="text-xl font-bold mb-4 text-white border-b border-gray-700 pb-3">Filters</h3>
       
+      <div className="relative mb-6">
+        <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+          <SearchIcon className="w-5 h-5 text-gray-400" />
+        </span>
+        <input
+          type="text"
+          placeholder="Search transcript..."
+          value={searchTerm}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700/50 border border-gray-600 text-gray-200 focus:ring-teal-500 focus:border-teal-500 transition"
+          aria-label="Search transcript"
+        />
+      </div>
+
       <div>
         <button
             onClick={() => setIsSpeakersExpanded(!isSpeakersExpanded)}

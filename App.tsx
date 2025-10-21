@@ -1,10 +1,12 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { parseTranscript } from './services/parser';
 import { analyzeTranscript } from './services/geminiService';
-import type { TranscriptEntry, GeminiAnalysisResult, AnalyzedTranscriptEntry } from './types';
+import { analyzeProfanity } from './services/profanityService';
+import type { TranscriptEntry, GeminiAnalysisResult, AnalyzedTranscriptEntry, ProfanityReport } from './types';
 import FileUpload from './components/FileUpload';
 import FilterControls from './components/FilterControls';
 import TranscriptView from './components/TranscriptView';
+import ProfanityTracker from './components/ProfanityTracker';
 
 const App: React.FC = () => {
   const [transcript, setTranscript] = useState<TranscriptEntry[] | null>(null);
@@ -15,6 +17,8 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [profanityReport, setProfanityReport] = useState<ProfanityReport | null>(null);
 
   const handleFileUpload = useCallback(async (file: File) => {
     setIsLoading(true);
@@ -24,6 +28,8 @@ const App: React.FC = () => {
     setSpeakers([]);
     setSelectedSpeakers([]);
     setFileName(file.name);
+    setSearchTerm('');
+    setProfanityReport(null);
 
     try {
       // Use a short timeout to allow the loading spinner to render
@@ -39,6 +45,10 @@ const App: React.FC = () => {
       setTranscript(entries);
       setSpeakers(parsedSpeakers);
       setSelectedSpeakers(parsedSpeakers); // Select all speakers by default
+      
+      // Non-AI based profanity analysis
+      const profanityData = analyzeProfanity(entries);
+      setProfanityReport(profanityData);
 
       try {
         const analysisData = await analyzeTranscript(entries);
@@ -75,10 +85,13 @@ const App: React.FC = () => {
 
         if (analysisFilter.isQuestion && !entry.isQuestion) return false;
         if (analysisFilter.isActionItem && !entry.isActionItem) return false;
+        
+        const searchMatch = searchTerm.trim() === '' || entry.text.toLowerCase().includes(searchTerm.toLowerCase());
+        if (!searchMatch) return false;
 
         return true;
     });
-  }, [analyzedTranscript, selectedSpeakers, analysisFilter]);
+  }, [analyzedTranscript, selectedSpeakers, analysisFilter, searchTerm]);
   
   const resetState = () => {
     setTranscript(null);
@@ -89,6 +102,8 @@ const App: React.FC = () => {
     setIsLoading(false);
     setError(null);
     setFileName('');
+    setSearchTerm('');
+    setProfanityReport(null);
   }
 
   return (
@@ -136,7 +151,10 @@ const App: React.FC = () => {
                     analysisFilter={analysisFilter}
                     onAnalysisFilterChange={setAnalysisFilter}
                     hasAnalysisResults={!!analysisResults}
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
                 />
+                {profanityReport && <ProfanityTracker report={profanityReport} />}
             </aside>
             <div className="lg:col-span-9">
                 <TranscriptView transcript={filteredTranscript} fileName={fileName} totalEntries={transcript.length} />

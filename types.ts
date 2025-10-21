@@ -5,7 +5,6 @@ export interface TranscriptEntry {
   text: string;
 }
 
-// Fix: Add GeminiAnalysisResult type, which was missing.
 export interface GeminiAnalysisResult {
   id: number;
   isQuestion: boolean;
@@ -14,3 +13,9 @@ export interface GeminiAnalysisResult {
 
 export type AnalyzedTranscriptEntry = TranscriptEntry &
   Partial<Omit<GeminiAnalysisResult, 'id'>>;
+
+export interface ProfanityReport {
+  totalCount: number;
+  byWord: Record<string, number>;
+  bySpeaker: Record<string, Record<string, number>>;
+}
